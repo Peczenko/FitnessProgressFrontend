@@ -1,42 +1,45 @@
 import { create } from 'zustand';
 import api from '../lib/axios';
-import { ProgressStatsDto, UserGoalDto } from '../types/progress';
+import {
+    GoalProgressDto,
+    TimelineProgressDto,
+    CommonProgressMapDto
+} from '../types/progress';
 
 interface ProgressStore {
-    goals: UserGoalDto[];
-    stats: Record<string, ProgressStatsDto>;
+    goalProgress: GoalProgressDto | null;
+    timelineProgress: TimelineProgressDto;
+    commonProgress: CommonProgressMapDto;
     loading: boolean;
-    fetchGoals: () => Promise<void>;
-    fetchStats: (metric: string) => Promise<void>;
-    setGoal: (goal: UserGoalDto) => Promise<void>;
+    fetchGoalProgress: (goalId: number) => Promise<GoalProgressDto>;
+    fetchTimelineProgress: (goalId: number) => Promise<void>;
+    fetchCommonProgress: () => Promise<void>;
 }
 
 export const useProgressStore = create<ProgressStore>((set) => ({
-    goals: [],
-    stats: {},
+    goalProgress: null,
+    timelineProgress: {},
+    commonProgress: {},
     loading: false,
 
-    fetchGoals: async () => {
+    fetchGoalProgress: async (goalId: number) => {
         set({ loading: true });
         try {
-            const response = await api.get<UserGoalDto[]>('/progress/goals');
-            set({ goals: response.data });
+            const response = await api.get<GoalProgressDto>(`/progress/goal/${goalId}`);
+            set({ goalProgress: response.data });
+            return response.data;
         } finally {
             set({ loading: false });
         }
     },
 
-    fetchStats: async (metric: string) => {
-        const response = await api.get<ProgressStatsDto>(`/progress/stats/${metric}`);
-        set((state) => ({
-            stats: { ...state.stats, [metric]: response.data }
-        }));
+    fetchTimelineProgress: async (goalId: number) => {
+        const response = await api.get<TimelineProgressDto>(`/progress/goal/${goalId}/timeline`);
+        set({ timelineProgress: response.data });
     },
 
-    setGoal: async (goal: UserGoalDto) => {
-        const response = await api.post<UserGoalDto>('/progress/goals', goal);
-        set((state) => ({
-            goals: [...state.goals, response.data]
-        }));
-    }
+    fetchCommonProgress: async () => {
+        const response = await api.get<CommonProgressMapDto>('/progress/common');
+        set({ commonProgress: response.data });
+    },
 }));

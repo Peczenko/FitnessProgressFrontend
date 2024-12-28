@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Clock, Edit, Trash2, Calendar } from 'lucide-react';
+import { Clock, Edit, Trash2, Calendar, Dumbbell } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { useWorkoutStore } from '../stores/workoutStore';
-import { WorkoutDto } from '../types/workout';
-import { DeleteConfirmationModal } from './DelteConfirmationModal';
+import { useWorkoutStore } from '../../stores/workoutStore.ts';
+import { WorkoutDto, formatExerciseType } from '../../types/workout.ts';
+import { DeleteConfirmationModal } from '../DelteConfirmationModal.tsx';
 
 interface WorkoutListProps {
     onEdit: (workout: WorkoutDto) => void;
@@ -13,6 +13,13 @@ export function WorkoutList({ onEdit }: WorkoutListProps) {
     const { workouts, loading, deleteWorkout } = useWorkoutStore();
     const [deletingId, setDeletingId] = useState<number | null>(null);
     const [workoutToDelete, setWorkoutToDelete] = useState<WorkoutDto | null>(null);
+
+    // Sort workouts by date, most recent last
+    const sortedWorkouts = [...workouts].sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+    });
 
     const handleDelete = async (id: number) => {
         try {
@@ -54,13 +61,39 @@ export function WorkoutList({ onEdit }: WorkoutListProps) {
     return (
         <>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {workouts.map((workout) => (
+                {sortedWorkouts.map((workout) => (
                     <div
                         key={workout.id}
                         className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
                     >
                         <h3 className="text-lg font-semibold text-gray-900">{workout.name}</h3>
                         <p className="mt-2 text-gray-600">{workout.description}</p>
+
+                        <div className="mt-4">
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">Exercises:</h4>
+                            <div className="space-y-2">
+                                {workout.exercises.map((exercise, index) => (
+                                    <div key={index} className="flex items-start space-x-2 text-sm text-gray-600">
+                                        <Dumbbell className="w-4 h-4 mt-1 flex-shrink-0" />
+                                        <div>
+                                            <div className="font-medium">
+                                                {exercise.exerciseType ?
+                                                    formatExerciseType(exercise.exerciseType) :
+                                                    exercise.customDescription}
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                                {exercise.sets.map((set, setIndex) => (
+                                                    <span key={setIndex}>
+                                                        {setIndex > 0 && ' | '}
+                                                        Set {setIndex + 1}: {set.reps} × {set.weight}kg
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
 
                         <div className="mt-4 flex items-center text-gray-500">
                             <Clock className="w-4 h-4 mr-2" />
