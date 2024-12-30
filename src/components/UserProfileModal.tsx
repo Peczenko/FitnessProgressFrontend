@@ -77,7 +77,7 @@ export function UserProfileModal({ isOpen, onClose }: UserProfileModalProps) {
                                 <User className="w-6 h-6 text-indigo-600" />
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500">{profile.username}</p>
+                                <p className="text-sm text-gray-500">Username</p>
                                 <p className="font-medium">{profile.username}</p>
                             </div>
                         </div>

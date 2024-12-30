@@ -27,6 +27,7 @@ export function WorkoutForm({ workout, onSuccess }: WorkoutFormProps) {
       name: formData.get('name') as string,
       description: formData.get('description') as string,
       duration: parseInt(formData.get('duration') as string, 10),
+      createdAt: new Date(formData.get('createdAt') as string).toISOString(),
       exercises: exercises
     };
 
