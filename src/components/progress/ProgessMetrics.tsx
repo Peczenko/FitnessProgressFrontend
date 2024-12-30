@@ -65,7 +65,6 @@ export function ProgressMetrics({ data }: ProgressMetricsProps) {
 
             <ProgressGraph
                 data={data}
-                metric={selectedMetric}
                 graphType={graphType}
             />
         </div>

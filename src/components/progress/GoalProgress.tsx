@@ -54,7 +54,7 @@ export function GoalProgress({ goalId }: GoalProgressProps) {
                         <div>
                             <p className="text-sm text-gray-500">Progress</p>
                             <p className="font-medium">
-                                {goalProgress.maxWeightLifted || 0}kg ({(goalProgress.weightGoalProgressPct || 0).toFixed(1)}%)
+                                {goalProgress.maxWeightLifted || 0}kg ({(goalProgress.combinedGoalProgressPct || 0).toFixed(1)}%)
                             </p>
                         </div>
                     </div>

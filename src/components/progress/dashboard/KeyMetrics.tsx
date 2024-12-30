@@ -15,7 +15,7 @@ export function KeyMetrics() {
                 await Promise.all(goals.map(async (goal) => {
                     try {
                         const progress = await fetchGoalProgress(goal.id);
-                        goal.achieved = progress.weightGoalProgressPct >= 100;
+                        goal.achieved = progress.combinedGoalProgressPct >= 100;
                     } catch (error) {
                         console.error(`Failed to fetch progress for goal ${goal.id}:`, error);
                     }

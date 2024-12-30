@@ -11,6 +11,7 @@ export interface GoalProgressDto {
     daysToDeadline: number;
     totalReps: number;
     maxRepsInSingleSet: number;
+    combinedGoalProgressPct: number;
 }
 
 export interface DailyProgressDto {
