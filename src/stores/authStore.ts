@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import api from '../lib/axios';
 import { JwtResponse, LoginDto, RegisterDto, UserDto } from '../types/auth';
 import { useProfileStore } from './profileStore';
+import { AUTH_ENDPOINTS } from '../lib/config';
 
 interface AuthStore {
   isAuthenticated: boolean;
@@ -13,7 +14,7 @@ interface AuthStore {
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
-  isAuthenticated: !!localStorage.getItem('token'),
+  isAuthenticated: !!localStorage.getItem('accessToken'),
   user: null,
 
   setUser: (user: UserDto) => {
@@ -21,25 +22,27 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   login: async (data) => {
-    const response = await api.post<JwtResponse>('/auth/login', data);
-    if (response.data?.token) {
-      localStorage.setItem('token', response.data.token);
+    const response = await api.post<JwtResponse>(AUTH_ENDPOINTS.LOGIN, data);
+    if (response.data) {
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
       set({ isAuthenticated: true });
       await useProfileStore.getState().fetchProfile();
     }
   },
 
   register: async (data) => {
-    const response = await api.post<JwtResponse>('/auth/register', data);
-    if (response.data?.token) {
-      localStorage.setItem('token', response.data.token);
-      set({ isAuthenticated: true });
-      await useProfileStore.getState().fetchProfile();
-    }
+    await api.post(AUTH_ENDPOINTS.REGISTER, data);
   },
 
-  logout: () => {
-    localStorage.removeItem('token');
+  logout: async () => {
+    try {
+      await api.post(AUTH_ENDPOINTS.LOGOUT);
+    }catch (e){
+      console.error("Logout error: ", e);
+    }
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     set({ isAuthenticated: false, user: null });
     useProfileStore.getState().reset();
   },

@@ -30,5 +30,9 @@ export interface LoginDto {
 }
 
 export interface JwtResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
+}
+export interface RefreshTokenResponse {
+  accessToken: string;
 }
